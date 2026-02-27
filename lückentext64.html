@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch-Trainer: Endungs-Fokus свой</title>
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --error-color: #e74c3c;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            font-style: normal;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            text-align: center;
+            font-style: normal;
+        }
+
+        .intro-box {
+            background: #eef2f7;
+            padding: 20px;
+            border-left: 5px solid var(--secondary-color);
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+
+        .task-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+
+        .task-header {
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .sentence {
+            font-size: 1.25rem;
+            margin: 15px 0;
+            font-style: normal;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        select {
+            padding: 2px 5px;
+            font-size: 1.1rem;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        select.correct {
+            border-color: var(--success-color) !important;
+            background-color: #e8f5e9 !important;
+            color: var(--success-color) !important;
+        }
+
+        select.incorrect {
+            border-color: var(--error-color) !important;
+            background-color: #ffebee !important;
+            color: var(--error-color) !important;
+        }
+
+        .translation {
+            display: block;
+            font-size: 0.95rem;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+
+        .btn-group {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            transition: opacity 0.2s;
+            font-style: normal;
+        }
+
+        .btn-reset { background-color: #95a5a6; }
+        .btn-sol { background-color: var(--primary-color); }
+
+        button:hover { opacity: 0.9; }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .btn-group { flex-direction: column; }
+            .sentence { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russische Grammatik: Endungs-Fokus</h1>
+    <h2>Wähle die richtige Endung für свой</h2>
+
+    <div class="intro-box">
+        <p><strong>Die Regel:</strong> Die Endung von <strong>свой</strong> richtet sich nach dem Substantiv, auf das es sich bezieht (Geschlecht, Fall und Zahl).</p>
+        <p><strong>Aufgabe:</strong> Der Wortstamm <strong>сво-</strong> ist vorgegeben. Wähle aus dem Menü die Endung aus, die grammatikalisch in den Satz passt.</p>
+    </div>
+
+    <div id="exercise-list"></div>
+</div>
+
+<script>
+    const exercises = [
+        { id: 1, pre: "Я доволен сво", post: " работой.", trans: "Ich bin mit meiner Arbeit zufrieden.", options: ["-ей", "-ю", "-ём"], ans: "-ей" },
+        { id: 2, pre: "Он говорит о сво", post: " друге.", trans: "Er spricht über seinen Freund.", options: ["-ём", "-им", "-его"], ans: "-ём" },
+        { id: 3, pre: "Мы видим сво", post: " школу.", trans: "Wir sehen unsere Schule.", options: ["-ю", "-ей", "-я"], ans: "-ю" },
+        { id: 4, pre: "Они гордятся сво", post: " детьми.", trans: "Sie sind stolz auf ihre Kinder.", options: ["-ими", "-их", "-им"], ans: "-ими" },
+        { id: 5, pre: "Ты ищешь сво", post: " ключи.", trans: "Suchst du deine Schlüssel?", options: ["-и", "-их", "-им"], ans: "-и" },
+        { id: 6, pre: "Вы помогаете сво", post: " брату.", trans: "Sie helfen Ihrem Bruder.", options: ["-ему", "-ем", "-им"], ans: "-ему" },
+        { id: 7, pre: "У неё нет сво", post: " адреса.", trans: "Sie hat keine eigene Adresse.", options: ["-его", "-ему", "-им"], ans: "-его" },
+        { id: 8, pre: "Мы идём к сво", post: " сестре.", trans: "Wir gehen zu unserer Schwester.", options: ["-ей", "-ю", "-я"], ans: "-ей" },
+        { id: 9, pre: "Он пишет в сво", post: " тетради.", trans: "Er schreibt in sein Heft.", options: ["-ей", "-ю", "-и"], ans: "-ей" },
+        { id: 10, pre: "Я вижу сво", post: " отца.", trans: "Ich sehe meinen Vater.", options: ["-его", "-им", "-ём"], ans: "-его" },
+        { id: 11, pre: "Она думает о сво", post: " планах.", trans: "Sie denkt über ihre Pläne nach.", options: ["-их", "-ими", "-им"], ans: "-их" },
+        { id: 12, pre: "Мы любуемся сво", post: " городом.", trans: "Wir bewundern unsere Stadt.", options: ["-им", "-ем", "-его"], ans: "-им" },
+        { id: 13, pre: "Ты забыл о сво", post: " обещании.", trans: "Du hast dein Versprechen vergessen.", options: ["-ём", "-ем", "-его"], ans: "-ём" },
+        { id: 14, pre: "Они живут в сво", post: " доме.", trans: "Sie leben in ihrem eigenen Haus.", options: ["-ём", "-ем", "-его"], ans: "-ём" },
+        { id: 15, pre: "Я встретил сво", post: " коллег.", trans: "Ich habe meine Kollegen getroffen.", options: ["-их", "-и", "-ими"], ans: "-их" },
+        { id: 16, pre: "Она довольна сво", post: " мужем.", trans: "Sie ist mit ihrem Mann zufrieden.", options: ["-им", "-ем", "-его"], ans: "-им" },
+        { id: 17, pre: "Мы дорожим сво", post: " семьёй.", trans: "Unsere Familie ist uns wichtig.", options: ["-ей", "-ю", "-ём"], ans: "-ей" },
+        { id: 18, pre: "Вы верите сво", post: " глазам?", trans: "Glauben Sie Ihren Augen?", options: ["-им", "-их", "-ими"], ans: "-им" },
+        { id: 19, pre: "Он звонит сво", post: " дедушке.", trans: "Er ruft seinen Großvater an.", options: ["-ему", "-его", "-им"], ans: "-ему" },
+        { id: 20, pre: "Я пользуюсь сво", post: " словарём.", trans: "Ich benutze mein Wörterbuch.", options: ["-им", "-ем", "-его"], ans: "-им" }
+    ];
+
+    function init() {
+        const list = document.getElementById('exercise-list');
+        exercises.forEach((ex, index) => {
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            card.id = `card-${ex.id}`;
+
+            card.innerHTML = `
+                <span class="task-header">Aufgabe ${index + 1}</span>
+                <span class="translation">Übersetzung: ${ex.trans}</span>
+                <div class="sentence">
+                    <span>${ex.pre}</span>
+                    <select id="select-${ex.id}" onchange="checkAnswer(${ex.id})">
+                        <option value="">--</option>
+                        ${ex.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                    </select>
+                    <span>${ex.post}</span>
+                </div>
+                <div class="btn-group">
+                    <button class="btn-reset" onclick="resetTask(${ex.id})">Zurücksetzen</button>
+                    <button class="btn-sol" onclick="showSolution(${ex.id})">Lösung anzeigen</button>
+                </div>
+            `;
+            list.appendChild(card);
+        });
+    }
+
+    window.checkAnswer = function(id) {
+        const ex = exercises.find(e => e.id === id);
+        const el = document.getElementById(`select-${id}`);
+        const val = el.value;
+
+        if (val === "") {
+            el.className = "";
+            return;
+        }
+
+        if (val === ex.ans) {
+            el.className = "correct";
+        } else {
+            el.className = "incorrect";
+        }
+    };
+
+    window.resetTask = function(id) {
+        const el = document.getElementById(`select-${id}`);
+        el.value = "";
+        el.className = "";
+    };
+
+    window.showSolution = function(id) {
+        const ex = exercises.find(e => e.id === id);
+        const el = document.getElementById(`select-${id}`);
+        el.value = ex.ans;
+        el.className = "correct";
+    };
+
+    document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>
