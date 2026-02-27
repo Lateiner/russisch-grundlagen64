@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch-Trainer: Satzbau-Baukasten свой</title>
+    <!-- Polyfill für Drag & Drop auf Touch-Geräten -->
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --error-color: #e74c3c;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+        }
+
+        /* Globale Deaktivierung von Kursivschrift */
+        * {
+            box-sizing: border-box;
+            font-style: normal !important;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            text-align: center;
+        }
+
+        .intro-box {
+            background: #eef2f7;
+            padding: 20px;
+            border-left: 5px solid var(--secondary-color);
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+
+        .task-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+
+        .task-header {
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .translation {
+            display: block;
+            margin-bottom: 15px;
+            color: #7f8c8d;
+            font-size: 1rem;
+        }
+
+        /* Wort-Pool */
+        .word-pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 15px;
+            background: #fff;
+            border: 1px dashed #ccc;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            min-height: 70px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .word-item {
+            background: var(--secondary-color);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: grab;
+            user-select: none;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .word-item:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+
+        /* Ziel-Zone */
+        .sentence-zone {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 15px;
+            background: #fff;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            min-height: 80px;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        /* Feedback-Farben */
+        .sentence-zone.correct {
+            background-color: #e8f5e9;
+            border-color: var(--success-color);
+        }
+
+        .sentence-zone.incorrect {
+            background-color: #ffebee;
+            border-color: var(--error-color);
+        }
+
+        .btn-group {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            transition: background 0.2s;
+        }
+
+        .btn-reset { background-color: #95a5a6; }
+        .btn-reset:hover { background-color: #7f8c8d; }
+
+        .btn-sol { background-color: var(--primary-color); }
+        .btn-sol:hover { background-color: #1a252f; }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .btn-group { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russische Grammatik: Satzbau-Baukasten</h1>
+    <h2>Wortstellung und die Form von свой</h2>
+
+    <div class="intro-box">
+        <p><strong>Anleitung:</strong> Ziehe die Wörter in die weiße Ziel-Zone, um einen korrekten Satz zu bilden. Sobald alle Wörter abgelegt wurden, zeigt dir die Farbe (Grün/Rot) sofort, ob die Reihenfolge stimmt.</p>
+        <p>Nutze den Button <strong>Zurücksetzen und mischen</strong>, um die Wörter in einer neuen Zufallsreihenfolge neu anzuordnen.</p>
+    </div>
+
+    <div id="exercise-list"></div>
+</div>
+
+<script>
+    const exercises = [
+        { id: 1, words: ["Иван", "читает", "свою", "книгу"], trans: "Ivan liest sein Buch." },
+        { id: 2, words: ["Я", "люблю", "свой", "город"], trans: "Ich liebe meine Stadt." },
+        { id: 3, words: ["Мы", "строим", "свой", "дом"], trans: "Wir bauen unser Haus." },
+        { id: 4, words: ["Анна", "ищет", "свою", "сумку"], trans: "Anna sucht ihre Tasche." },
+        { id: 5, words: ["Антон", "потерял", "свои", "ключи"], trans: "Anton hat seine Schlüssel verloren." },
+        { id: 6, words: ["Мы", "любим", "своё", "село"], trans: "Wir lieben unser Dorf." },
+        { id: 7, words: ["Она", "рассказывает", "о", "своей", "маме"], trans: "Sie erzählt von ihrer Mutter." },
+        { id: 8, words: ["Они", "гордятся", "своими", "успехами"], trans: "Sie sind stolz auf ihre Erfolge." },
+        { id: 9, words: ["Я", "думаю", "о", "своём", "будущем"], trans: "Ich denke an meine Zukunft." },
+        { id: 10, words: ["Ты", "знаешь", "свою", "ошибку"], trans: "Du kennst deinen Fehler." },
+        { id: 11, words: ["Вы", "звоните", "своей", "маме"], trans: "Sie rufen Ihre Mutter an." },
+        { id: 12, words: ["Ребёнок", "ест", "своё", "яблоко"], trans: "Das Kind isst seinen Apfel." },
+        { id: 13, words: ["Виктор", "встретил", "своего", "брата"], trans: "Viktor hat seinen Bruder getroffen." },
+        { id: 14, words: ["Студент", "пишет", "в", "своей", "тетради"], trans: "Der Student schreibt in sein Heft." },
+        { id: 15, words: ["Мы", "идём", "к", "своей", "сестре"], trans: "Wir gehen zu unserer Schwester." },
+        { id: 16, words: ["Она", "гордится", "своей", "дочерью"], trans: "Sie ist stolz auf ihre Tochter." },
+        { id: 17, words: ["Я", "пью", "свой", "чай"], trans: "Ich trinke meinen Tee." },
+        { id: 18, words: ["Ты", "ищешь", "свои", "ключи"], trans: "Du suchst deine Schlüssel." },
+        { id: 19, words: ["Мы", "живём", "в", "своём", "доме"], trans: "Wir leben in unserem Haus." },
+        { id: 20, words: ["Они", "забыли", "свои", "вещи"], trans: "Sie haben ihre Sachen vergessen." }
+    ];
+
+    // Verbesserter Misch-Algorithmus (Fisher-Yates) mit Check gegen die Lösung
+    function shuffleArray(array) {
+        let shuffled;
+        let isIdentical = true;
+        const originalStr = JSON.stringify(array);
+
+        // Versuche zu mischen, bis die Reihenfolge definitiv anders ist als die Lösung
+        // (außer bei Sätzen mit nur 1 Wort, was hier nicht vorkommt)
+        let attempts = 0;
+        while (isIdentical && attempts < 15) {
+            shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            if (JSON.stringify(shuffled) !== originalStr) {
+                isIdentical = false;
+            }
+            attempts++;
+        }
+        return shuffled;
+    }
+
+    function renderTasks() {
+        const list = document.getElementById('exercise-list');
+        exercises.forEach((ex, idx) => {
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            card.id = `card-${ex.id}`;
+
+            card.innerHTML = `
+                <span class="task-header">Aufgabe ${idx + 1}</span>
+                <span class="translation">Übersetzung: „${ex.trans}“</span>
+                <div class="word-pool" id="pool-${ex.id}" ondrop="dropToPool(event, ${ex.id})" ondragover="allowDrop(event)"></div>
+                <div class="sentence-zone" id="zone-${ex.id}" ondrop="dropToZone(event, ${ex.id})" ondragover="allowDrop(event)"></div>
+                <div class="btn-group">
+                    <button class="btn-reset" onclick="resetAndShuffle(${ex.id})">Zurücksetzen und mischen</button>
+                    <button class="btn-sol" onclick="showSolution(${ex.id})">Lösung anzeigen</button>
+                </div>
+            `;
+            list.appendChild(card);
+            fillPool(ex.id);
+        });
+    }
+
+    function fillPool(exId) {
+        const ex = exercises.find(e => e.id === exId);
+        const pool = document.getElementById(`pool-${exId}`);
+        const shuffled = shuffleArray(ex.words);
+        
+        pool.innerHTML = "";
+        shuffled.forEach((word, wIdx) => {
+            const wordDiv = document.createElement('div');
+            wordDiv.className = 'word-item';
+            wordDiv.id = `word-${exId}-${wIdx}-${Math.random()}`; // Eindeutige ID
+            wordDiv.draggable = true;
+            wordDiv.innerText = word;
+            wordDiv.ondragstart = drag;
+            pool.appendChild(wordDiv);
+        });
+    }
+
+    window.allowDrop = (ev) => ev.preventDefault();
+
+    window.drag = (ev) => {
+        ev.dataTransfer.setData("text", ev.target.id);
+    };
+
+    window.dropToZone = (ev, exId) => {
+        ev.preventDefault();
+        const id = ev.dataTransfer.getData("text");
+        const dragged = document.getElementById(id);
+        const zone = document.getElementById(`zone-${exId}`);
+
+        if (dragged && id.includes(`word-${exId}-`)) {
+            zone.appendChild(dragged);
+            checkSentence(exId);
+        }
+    };
+
+    window.dropToPool = (ev, exId) => {
+        ev.preventDefault();
+        const id = ev.dataTransfer.getData("text");
+        const dragged = document.getElementById(id);
+        const pool = document.getElementById(`pool-${exId}`);
+
+        if (dragged && id.includes(`word-${exId}-`)) {
+            pool.appendChild(dragged);
+            checkSentence(exId);
+        }
+    };
+
+    function checkSentence(exId) {
+        const zone = document.getElementById(`zone-${exId}`);
+        const pool = document.getElementById(`pool-${exId}`);
+        const ex = exercises.find(e => e.id === exId);
+        
+        const currentWords = Array.from(zone.children).map(child => child.innerText);
+
+        // Prüfung erst, wenn alle Wörter in der Zone liegen
+        if (pool.children.length === 0) {
+            const isCorrect = JSON.stringify(currentWords) === JSON.stringify(ex.words);
+            zone.className = `sentence-zone ${isCorrect ? 'correct' : 'incorrect'}`;
+        } else {
+            zone.className = "sentence-zone";
+        }
+    }
+
+    window.resetAndShuffle = (exId) => {
+        const zone = document.getElementById(`zone-${exId}`);
+        zone.innerHTML = "";
+        zone.className = "sentence-zone";
+        fillPool(exId);
+    };
+
+    window.showSolution = (exId) => {
+        const ex = exercises.find(e => e.id === exId);
+        const zone = document.getElementById(`zone-${exId}`);
+        const pool = document.getElementById(`pool-${exId}`);
+
+        pool.innerHTML = "";
+        zone.innerHTML = "";
+        zone.className = "sentence-zone correct";
+
+        ex.words.forEach((word) => {
+            const wordDiv = document.createElement('div');
+            wordDiv.className = 'word-item';
+            wordDiv.innerText = word;
+            zone.appendChild(wordDiv);
+        });
+    };
+
+    document.addEventListener('DOMContentLoaded', renderTasks);
+</script>
+
+</body>
+</html>
