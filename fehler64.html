@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch-Trainer: Fehler-Detektiv свой</title>
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --error-color: #e74c3c;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            font-style: normal;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            text-align: center;
+            font-style: normal;
+        }
+
+        .intro-box {
+            background: #fdf2e9;
+            padding: 20px;
+            border-left: 5px solid #e67e22;
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+
+        .task-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+
+        .task-header {
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .sentence {
+            font-size: 1.25rem;
+            margin: 15px 0;
+            font-style: normal;
+        }
+
+        .error-word {
+            color: var(--error-color);
+            text-decoration: underline wavy;
+            font-weight: bold;
+        }
+
+        select {
+            padding: 5px;
+            font-size: 1.1rem;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-family: inherit;
+            font-style: normal;
+        }
+
+        select.correct {
+            border-color: var(--success-color) !important;
+            background-color: #e8f5e9 !important;
+            color: var(--success-color) !important;
+        }
+
+        select.incorrect {
+            border-color: var(--error-color) !important;
+            background-color: #ffebee !important;
+            color: var(--error-color) !important;
+        }
+
+        .translation {
+            display: block;
+            font-size: 0.95rem;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .btn-group {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            transition: opacity 0.2s;
+            font-style: normal;
+        }
+
+        .btn-reset { background-color: #95a5a6; }
+        .btn-sol { background-color: var(--primary-color); }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .btn-group { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russische Grammatik: Fehler-Detektiv</h1>
+    <h2>Wann ist свой falsch?</h2>
+
+    <div class="intro-box">
+        <p><strong>Achtung Anfängerfehler:</strong> In den folgenden Sätzen wurde fälschlicherweise <strong>свой</strong> verwendet, obwohl das Wort im Nominativ steht und das Subjekt des Satzes ist.</p>
+        <p><strong>Aufgabe:</strong> Klicke auf das markierte falsche Wort und wähle im Menü das richtige Personal-Possessivpronomen (mein, dein, sein...) aus, das zur Übersetzung passt.</p>
+    </div>
+
+    <div id="exercise-container"></div>
+</div>
+
+<script>
+    const exercises = [
+        { id: 1, text: "... брат живёт в Москве.", trans: "Mein Bruder lebt in Moskau.", wrong: "Свой", options: ["Мой", "Твой", "Его"], ans: "Мой" },
+        { id: 2, text: "... сестра учится в школе.", trans: "Deine Schwester lernt in der Schule.", wrong: "Своя", options: ["Моя", "Твоя", "Её"], ans: "Твоя" },
+        { id: 3, text: "... родители сейчас дома.", trans: "Seine Eltern sind gerade zu Hause.", wrong: "Свои", options: ["Его", "Её", "Их"], ans: "Его" },
+        { id: 4, text: "... дом очень большой.", trans: "Ihr (ihr eigener) Haus ist sehr groß.", wrong: "Свой", options: ["Его", "Её", "Их"], ans: "Их" },
+        { id: 5, text: "... машина стоит здесь.", trans: "Ihr (ihr einzelner) Wagen steht hier.", wrong: "Своя", options: ["Его", "Её", "Моя"], ans: "Её" },
+        { id: 6, text: "... окно открыто.", trans: "Unser Fenster ist offen.", wrong: "Своё", options: ["Моё", "Твоё", "Наше"], ans: "Наше" },
+        { id: 7, text: "... город очень старый.", trans: "Eure Stadt ist sehr alt.", wrong: "Свой", options: ["Ваш", "Наш", "Их"], ans: "Ваш" },
+        { id: 8, text: "... книги лежат на столе.", trans: "Meine Bücher liegen auf dem Tisch.", wrong: "Свои", options: ["Мои", "Твои", "Его"], ans: "Мои" },
+        { id: 9, text: "... кошка очень милая.", trans: "Deine Katze ist sehr süß.", wrong: "Своя", options: ["Моя", "Твоя", "Его"], ans: "Твоя" },
+        { id: 10, text: "... работа интересная.", trans: "Ihre (ihre eigene) Arbeit ist interessant.", wrong: "Своя", options: ["Моя", "Её", "Их"], ans: "Её" },
+        { id: 11, text: "... друзья живут в Туле.", trans: "Seine Freunde wohnen in Tula.", wrong: "Свои", options: ["Его", "Её", "Их"], ans: "Его" },
+        { id: 12, text: "... чемодан тяжёлый.", trans: "Unser Koffer ist schwer.", wrong: "Свой", options: ["Наш", "Ваш", "Их"], ans: "Наш" },
+        { id: 13, text: "... имя очень красивое.", trans: "Dein Name ist sehr schön.", wrong: "Своё", options: ["Моё", "Твоё", "Его"], ans: "Твоё" },
+        { id: 14, text: "... дети гуляют в парке.", trans: "Eure Kinder gehen im Park spazieren.", wrong: "Свои", options: ["Наши", "Ваши", "Их"], ans: "Ваши" },
+        { id: 15, text: "... письмо пришло сегодня.", trans: "Mein Brief kam heute an.", wrong: "Своё", options: ["Моё", "Твоё", "Его"], ans: "Моё" },
+        { id: 16, text: "... страна очень большая.", trans: "Ihr (ihr gemeinsames) Land ist sehr groß.", wrong: "Своя", options: ["Наша", "Ваша", "Их"], ans: "Их" },
+        { id: 17, text: "... ключи в сумке.", trans: "Meine Schlüssel sind in der Tasche.", wrong: "Свои", options: ["Мои", "Твои", "Его"], ans: "Мои" },
+        { id: 18, text: "... дедушка врач.", trans: "Sein Großvater ist Arzt.", wrong: "Свой", options: ["Мой", "Его", "Её"], ans: "Его" },
+        { id: 19, text: "... пальто висит здесь.", trans: "Ihr (ihr einzelner) Mantel hängt hier.", wrong: "Своё", options: ["Моё", "Его", "Её"], ans: "Её" },
+        { id: 20, text: "... учебники новые.", trans: "Unsere Lehrbücher sind neu.", wrong: "Свои", options: ["Мои", "Наши", "Ваши"], ans: "Наши" }
+    ];
+
+    function renderExercises() {
+        const container = document.getElementById('exercise-container');
+        exercises.forEach((ex, index) => {
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            card.id = `card-${ex.id}`;
+
+            const textParts = ex.text.split('...');
+
+            card.innerHTML = `
+                <span class="task-header">Aufgabe ${index + 1}</span>
+                <p class="sentence">
+                    <select id="select-${ex.id}" onchange="checkAnswer(${ex.id})">
+                        <option value="${ex.wrong}">${ex.wrong} (Falsch!)</option>
+                        ${ex.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                    </select>
+                    ${textParts[1]}
+                </p>
+                <span class="translation">Übersetzung: ${ex.trans}</span>
+                <div class="btn-group">
+                    <button class="btn-reset" onclick="resetTask(${ex.id})">Zurücksetzen</button>
+                    <button class="btn-sol" onclick="showSolution(${ex.id})">Lösung anzeigen</button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    window.checkAnswer = function(id) {
+        const ex = exercises.find(e => e.id === id);
+        const el = document.getElementById(`select-${id}`);
+        const val = el.value;
+
+        if (val === ex.wrong) {
+            el.className = "incorrect";
+        } else if (val === ex.ans) {
+            el.className = "correct";
+        } else {
+            el.className = "incorrect";
+        }
+    };
+
+    window.resetTask = function(id) {
+        const ex = exercises.find(e => e.id === id);
+        const el = document.getElementById(`select-${id}`);
+        el.value = ex.wrong;
+        el.className = "";
+    };
+
+    window.showSolution = function(id) {
+        const ex = exercises.find(e => e.id === id);
+        const el = document.getElementById(`select-${id}`);
+        el.value = ex.ans;
+        el.className = "correct";
+    };
+
+    document.addEventListener('DOMContentLoaded', renderExercises);
+</script>
+
+</body>
+</html>
