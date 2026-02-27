@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch-Trainer: Das Besitzer-Puzzle</title>
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --error-color: #e74c3c;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            font-style: normal;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            text-align: center;
+            font-style: normal;
+        }
+
+        .intro-box {
+            background: #eef2f7;
+            padding: 20px;
+            border-left: 5px solid var(--secondary-color);
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+
+        .task-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+
+        .task-header {
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .context-hint {
+            background: #fff3cd;
+            padding: 8px 12px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #856404;
+        }
+
+        .sentence {
+            font-size: 1.25rem;
+            margin: 15px 0;
+            font-style: normal;
+        }
+
+        select {
+            padding: 5px;
+            font-size: 1.1rem;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        select.correct {
+            border-color: var(--success-color) !important;
+            background-color: #e8f5e9 !important;
+            color: var(--success-color) !important;
+        }
+
+        select.incorrect {
+            border-color: var(--error-color) !important;
+            background-color: #ffebee !important;
+            color: var(--error-color) !important;
+        }
+
+        .btn-group {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            transition: opacity 0.2s;
+            font-style: normal;
+        }
+
+        .btn-reset { background-color: #95a5a6; }
+        .btn-sol { background-color: var(--primary-color); }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .btn-group { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russische Grammatik: Das Besitzer-Puzzle</h1>
+    <h2>Subjekt-Besitz oder Fremd-Besitz?</h2>
+
+    <div class="intro-box">
+        <p><strong>Die Logik:</strong> Im Deutschen sagen wir oft „Er liebt seine Frau“. Das kann bedeuten: seine eigene Frau oder die Frau eines anderen Mannes. Im Russischen müssen wir präzise sein:</p>
+        <ul>
+            <li><strong>свой:</strong> Bezieht sich auf das Subjekt (er liebt seine eigene Frau).</li>
+            <li><strong>его / её / их:</strong> Bezieht sich auf eine andere Person (er liebt die Frau eines anderen).</li>
+        </ul>
+        <p><strong>Aufgabe:</strong> Achte auf den gelben Kontext-Hinweis und wähle die richtige Form!</p>
+    </div>
+
+    <div id="exercise-container"></div>
+</div>
+
+<script>
+    const exercises = [
+        { id: 1, context: "Kontext: Es ist seine eigene Frau.", text: "Иван любит ... жену.", options: ["свою", "его"], ans: "свою" },
+        { id: 2, context: "Kontext: Er liebt die Frau seines Freundes.", text: "Иван любит ... жену.", options: ["свою", "его"], ans: "его" },
+        { id: 3, context: "Kontext: Anna sucht ihre eigene Tasche.", text: "Анна ищет ... сумку.", options: ["свою", "её"], ans: "свою" },
+        { id: 4, context: "Kontext: Anna sucht die Tasche ihrer Freundin.", text: "Анна ищет ... сумку.", options: ["свою", "её"], ans: "её" },
+        { id: 5, context: "Kontext: Anton wäscht sein eigenes Auto.", text: "Антон моет ... машину.", options: ["свою", "его"], ans: "свою" },
+        { id: 6, context: "Kontext: Anton wäscht das Auto seines Vaters.", text: "Антон моет ... машину.", options: ["свою", "его"], ans: "его" },
+        { id: 7, context: "Kontext: Die Eltern lieben ihre eigenen Kinder.", text: "Родители любят ... детей.", options: ["своих", "их"], ans: "своих" },
+        { id: 8, context: "Kontext: Die Eltern lieben die Kinder der Nachbarn.", text: "Родители любят ... детей.", options: ["своих", "их"], ans: "их" },
+        { id: 9, context: "Kontext: Maria spricht über ihr eigenes Leben.", text: "Мария говорит о ... жизни.", options: ["своей", "её"], ans: "своей" },
+        { id: 10, context: "Kontext: Maria spricht über das Leben ihrer Schwester.", text: "Мария говорит о ... жизни.", options: ["своей", "её"], ans: "её" },
+        { id: 11, context: "Kontext: Viktor hilft seinem eigenen Bruder.", text: "Виктор помогает ... брату.", options: ["своему", "его"], ans: "своему" },
+        { id: 12, context: "Kontext: Viktor hilft dem Bruder seines Freundes.", text: "Виктор помогает ... брату.", options: ["своему", "его"], ans: "его" },
+        { id: 13, context: "Kontext: Wir wohnen in unserem eigenen Haus.", text: "Мы живём в ... доме.", options: ["своём", "нашем"], ans: "своём" },
+        { id: 14, context: "Kontext: Sie (Plural) essen ihr eigenes Brot.", text: "Они едят ... хлеб.", options: ["свой", "их"], ans: "свой" },
+        { id: 15, context: "Kontext: Sie (Plural) essen das Brot der anderen.", text: "Они едят ... хлеб.", options: ["свой", "их"], ans: "их" },
+        { id: 16, context: "Kontext: Du liest dein eigenes Buch.", text: "Ты читаешь ... книгу.", options: ["свою", "твою"], ans: "свою" },
+        { id: 17, context: "Kontext: Er schreibt mit seinem eigenen Kuli.", text: "Он пишет ... ручкой.", options: ["своей", "его"], ans: "своей" },
+        { id: 18, context: "Kontext: Er schreibt mit dem Kuli seines Chefs.", text: "Он пишет ... ручкой.", options: ["своей", "его"], ans: "его" },
+        { id: 19, context: "Kontext: Sie (Singular) geht mit ihrem eigenen Hund spazieren.", text: "Она гуляет со ... собакой.", options: ["своей", "её"], ans: "своей" },
+        { id: 20, context: "Kontext: Sie (Singular) geht mit dem Hund der Nachbarin spazieren.", text: "Она гуляет со ... собакой.", options: ["своей", "её"], ans: "её" }
+    ];
+
+    function renderExercises() {
+        const container = document.getElementById('exercise-container');
+        exercises.forEach((ex, index) => {
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            card.id = `card-${ex.id}`;
+
+            const textParts = ex.text.split('...');
+
+            card.innerHTML = `
+                <span class="task-header">Aufgabe ${index + 1}</span>
+                <div class="context-hint">${ex.context}</div>
+                <p class="sentence">
+                    ${textParts[0]}
+                    <select id="select-${ex.id}" onchange="checkAnswer(${ex.id})">
+                        <option value="">-- ? --</option>
+                        ${ex.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                    </select>
+                    ${textParts[1]}
+                </p>
+                <div class="btn-group">
+                    <button class="btn-reset" onclick="resetTask(${ex.id})">Zurücksetzen</button>
+                    <button class="btn-sol" onclick="showSolution(${ex.id})">Lösung anzeigen</button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    window.checkAnswer = function(id) {
+        const ex = exercises.find(e => e.id === id);
+        const el = document.getElementById(`select-${id}`);
+        const val = el.value;
+
+        if (val === "") {
+            el.className = "";
+            return;
+        }
+
+        if (val === ex.ans) {
+            el.className = "correct";
+        } else {
+            el.className = "incorrect";
+        }
+    };
+
+    window.resetTask = function(id) {
+        const el = document.getElementById(`select-${id}`);
+        el.value = "";
+        el.className = "";
+    };
+
+    window.showSolution = function(id) {
+        const ex = exercises.find(e => e.id === id);
+        const el = document.getElementById(`select-${id}`);
+        el.value = ex.ans;
+        el.className = "correct";
+    };
+
+    document.addEventListener('DOMContentLoaded', renderExercises);
+</script>
+
+</body>
+</html>
