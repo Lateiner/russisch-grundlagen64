@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vokabeltrainer: Russisch – свой & Co.</title>
+    <style>
+        :root {
+            --primary-green: #2e7d32;
+            --light-green: #e8f5e9;
+            --accent-green: #4caf50;
+            --dark-green: #1b5e20;
+            --text-color: #333;
+            --bg-color: #f1f8e9;
+            --card-bg: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--dark-green);
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .progress {
+            font-weight: bold;
+            color: var(--primary-green);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        /* Flashcard 3D Effekt */
+        .card-viewport {
+            perspective: 1000px;
+            width: 100%;
+            aspect-ratio: 3 / 2;
+            cursor: pointer;
+            margin-bottom: 30px;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-radius: 15px;
+        }
+
+        .card-viewport.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: var(--card-bg);
+            border: 4px solid var(--primary-green);
+            border-radius: 15px;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            background-color: var(--light-green);
+        }
+
+        .vokabel-text {
+            word-wrap: break-word;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .side-label {
+            position: absolute;
+            top: 10px;
+            font-size: 0.8rem;
+            color: var(--primary-green);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Buttons & Navigation */
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+        }
+
+        button {
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: var(--primary-green);
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: none;
+        }
+
+        button:hover {
+            background-color: var(--accent-green);
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        .secondary-btn {
+            background-color: var(--dark-green);
+        }
+
+        /* Hilfe-Text */
+        .shortcuts {
+            margin-top: 25px;
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 1.2rem; }
+            button { padding: 15px; font-size: 0.9rem; }
+            .shortcuts { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russisch Vokabeltrainer</h1>
+    <div class="progress" id="progressIndicator">1 / 80</div>
+
+    <div class="card-viewport" id="flashcard" onclick="flipCard()">
+        <div class="card-inner">
+            <div class="card-front">
+                <span class="side-label">Russisch</span>
+                <p class="vokabel-text" id="frontText">Lädt...</p>
+            </div>
+            <div class="card-back">
+                <span class="side-label">Deutsch</span>
+                <p class="vokabel-text" id="backText">Lädt...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button onclick="prevCard()">← Vorherige</button>
+        <button onclick="nextCard()">Nächste →</button>
+        <button class="secondary-btn" onclick="goToStart()">An den Anfang</button>
+        <button class="secondary-btn" onclick="shuffleCards()">Mischen</button>
+    </div>
+
+    <div class="shortcuts">
+        Tastatur: <b>Leertaste/Enter</b> zum Umdrehen | <b>Pfeiltasten</b> zum Navigieren | <b>Pos1</b> für Anfang
+    </div>
+</div>
+
+<script>
+    // Rohdaten der Vokabelliste
+    const rawData = `
+1.	свой – eigen / sein / ihr (bezogen auf das Subjekt)
+2.	мой – mein
+3.	твой – dein
+4.	его́ – sein / ihm / ihn
+5.	её – ihr / sie
+6.	наш – unser
+7.	ваш – euer / Ihr
+8.	их – ihr (Plural)
+9.	ма́ма – Mama
+10.	мать – Mutter
+11.	оте́ц – Vater
+12.	па́па – Papa
+13.	сын – Sohn
+14.	дочь – Tochter
+15.	брат – Bruder
+16.	сестра́ – Schwester
+17.	де́душка – Großvater
+18.	муж – Ehemann
+19.	жена́ – Ehefrau
+20.	роди́тели – Eltern
+21.	ребёнок – Kind
+22.	лю́ди – Leute / Menschen
+23.	друг – Freund
+24.	подру́га – Freundin
+25.	знако́мый – Bekannter
+26.	колле́га – Kollege / Kollegin
+27.	врач – Arzt / Ärztin
+28.	учи́тель – Lehrer
+29.	писа́тель – Schriftsteller
+30.	студе́нт / студе́нтка – Student / Studentin
+31.	по́вар – Koch / Köchin
+32.	дом – Haus
+33.	го́род – Stadt
+34.	село́ – Dorf
+35.	страна́ – Land
+36.	рабо́ta – Arbeit
+37.	жизнь – Leben
+38.	бу́дущее – Zukunft
+39.	оши́бка – Fehler
+40.	успе́х – Erfolg
+41.	чу́вство – Gefühl
+42.	обеща́ние – Versprechen
+43.	маши́на – Auto
+44.	портфе́ль – Aktentasche
+45.	су́мка – Tasche
+46.	ключ / ключи́ – Schlüssel
+47.	телефо́н – Telefon
+48.	па́спорт – Reisepass
+49.	уче́бник – Lehrbuch
+50.	тетра́дь – Heft
+51.	ру́чка – Kugelschreiber
+52.	письмо́ – Brief
+53.	слова́рь – Wörterbuch
+54.	чай – Tee
+55.	я́блоко – Apfel
+56.	суп – Suppe
+57.	люби́ть / полюби́ть – lieben
+58.	знать / узнать – wissen / kennen / erfahren
+59.	ви́деть / уви́деть – sehen
+60.	слы́шать / услы́шать – hören
+61.	ду́мать / поду́мать – denken
+62.	писа́ть / написа́ть – schreiben
+63.	чита́ть / прочита́ть – lesen
+64.	говори́ть / сказа́ть – sprechen / sagen
+65.	расска́зывать / рассказа́ть – erzählen
+66.	пока́зывать / показа́ть – zeigen
+67.	звони́ть / позвони́ть – anrufen / telefonieren
+68.	иска́ть / поиска́ть – suchen
+69.	находи́ть / найти́ – finden
+70.	теря́ть / потеря́ть – verlieren
+71.	мыть / помы́ть – waschen
+72.	стро́ить / постро́ить – bauen
+73.	есть / съесть – essen
+74.	пить / вы́пить – trinken
+75.	жить / пожи́ть – leben / wohnen
+76.	встреча́ть / встре́тить – treffen / begegnen
+77.	рабо́тать / порабо́тать – arbeiten
+78.	учи́ться / вы́учиться – lernen / studieren
+79.	по́льзоваться / воспо́льзоваться – benutzen / gebrauchen
+80.	ждать / подожда́ть – warten / erwarten`;
+
+    let cards = [];
+    let currentIndex = 0;
+
+    // Parser: Wandelt den Text in ein Objekt-Array um
+    function parseData() {
+        const lines = rawData.trim().split('\n');
+        cards = lines.map(line => {
+            // Entferne die Nummer am Anfang (z.B. "1. ")
+            const cleanLine = line.replace(/^\d+\.\t?/, '').trim();
+            const [front, back] = cleanLine.split(' – ');
+            return {
+                front: front ? front.trim() : "",
+                back: back ? back.trim() : ""
+            };
+        });
+    }
+
+    function updateCardUI() {
+        const card = cards[currentIndex];
+        const frontElem = document.getElementById('frontText');
+        const backElem = document.getElementById('backText');
+        
+        // UI zurücksetzen
+        document.getElementById('flashcard').classList.remove('flipped');
+        
+        // Texte setzen
+        frontElem.innerText = card.front;
+        backElem.innerText = card.back;
+
+        // Dynamische Schriftgröße
+        adjustFontSize(frontElem, card.front);
+        adjustFontSize(backElem, card.back);
+
+        // Fortschritt
+        document.getElementById('progressIndicator').innerText = `${currentIndex + 1} / ${cards.length}`;
+    }
+
+    function adjustFontSize(element, text) {
+        // Basisgröße berechnen
+        let fontSize = 2.2; // rem
+        if (text.length > 15) fontSize = 1.8;
+        if (text.length > 30) fontSize = 1.4;
+        if (text.length > 50) fontSize = 1.1;
+        
+        element.style.fontSize = fontSize + "rem";
+    }
+
+    // Navigation
+    function flipCard() {
+        document.getElementById('flashcard').classList.toggle('flipped');
+    }
+
+    function nextCard() {
+        if (currentIndex < cards.length - 1) {
+            currentIndex++;
+            updateCardUI();
+        } else {
+            // Optional: Loop zum Anfang
+            currentIndex = 0;
+            updateCardUI();
+        }
+    }
+
+    function prevCard() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            updateCardUI();
+        }
+    }
+
+    function goToStart() {
+        currentIndex = 0;
+        updateCardUI();
+    }
+
+    function shuffleCards() {
+        // Fisher-Yates Shuffle
+        for (let i = cards.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [cards[i], cards[j]] = [cards[j], cards[i]];
+        }
+        currentIndex = 0;
+        updateCardUI();
+    }
+
+    // Keyboard Steuerung
+    document.addEventListener('keydown', (e) => {
+        switch(e.code) {
+            case 'Space':
+            case 'Enter':
+                e.preventDefault();
+                flipCard();
+                break;
+            case 'ArrowRight':
+                nextCard();
+                break;
+            case 'ArrowLeft':
+                prevCard();
+                break;
+            case 'Home':
+                goToStart();
+                break;
+        }
+    });
+
+    // Initialisierung
+    parseData();
+    updateCardUI();
+
+</script>
+
+</body>
+</html>
