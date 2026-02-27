@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch-Trainer: Deklinations-Tabelle свой</title>
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --error-color: #e74c3c;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --border-color: #d1d8e0;
+        }
+
+        /* Kursivschrift global deaktivieren */
+        * {
+            box-sizing: border-box;
+            font-style: normal !important;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            text-align: center;
+        }
+
+        .intro-box {
+            background: #eef2f7;
+            padding: 20px;
+            border-left: 5px solid var(--secondary-color);
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+
+        /* Responsive Table Wrapper */
+        .table-responsive {
+            overflow-x: auto;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            min-width: 600px; /* Verhindert zu starkes Quetschen */
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .case-label {
+            font-weight: bold;
+            background-color: #f8f9fa;
+            text-align: left;
+            width: 120px;
+        }
+
+        /* Dropdown Styling */
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        /* Feedback-Farben */
+        select.correct {
+            border-color: var(--success-color) !important;
+            background-color: #e8f5e9 !important;
+            color: var(--success-color) !important;
+            font-weight: bold;
+        }
+
+        select.incorrect {
+            border-color: var(--error-color) !important;
+            background-color: #ffebee !important;
+            color: var(--error-color) !important;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            transition: opacity 0.2s;
+        }
+
+        .btn-reset { background-color: #95a5a6; }
+        .btn-sol { background-color: var(--primary-color); }
+
+        button:hover { opacity: 0.9; }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            th, td { padding: 8px; font-size: 0.85rem; }
+            select { font-size: 0.8rem; padding: 4px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russische Grammatik: Deklination</h1>
+    <h2>Vervollständige die Tabelle von свой</h2>
+
+    <div class="intro-box">
+        <p><strong>Das Paradigma:</strong> Hier siehst du alle Formen des Wortes <strong>свой</strong> auf einen Blick. Der Nominativ wurde weggelassen, da <strong>свой</strong> dort nicht als Subjekt verwendet werden kann.</p>
+        <p><strong>Aufgabe:</strong> Wähle in jeder Zelle die richtige grammatikalische Form aus. Das Feld wird sofort grün, wenn deine Wahl korrekt ist.</p>
+    </div>
+
+    <div class="table-responsive">
+        <table id="declination-table">
+            <thead>
+                <tr>
+                    <th>Fall (Kasus)</th>
+                    <th>Maskulin</th>
+                    <th>Feminin</th>
+                    <th>Neutrum</th>
+                    <th>Plural</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <!-- Rows will be generated by JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="btn-group">
+        <button class="btn-reset" onclick="resetTable()">Tabelle zurücksetzen</button>
+        <button class="btn-sol" onclick="showAllSolutions()">Lösungen anzeigen</button>
+    </div>
+</div>
+
+<script>
+    const cases = [
+        { label: "Genitiv", id: "gen" },
+        { label: "Dativ", id: "dat" },
+        { label: "Akkusativ", id: "akk" },
+        { label: "Instrumental", id: "ins" },
+        { label: "Präpositiv", id: "pre" }
+    ];
+
+    const answers = {
+        "gen": ["своего", "своей", "своего", "своих"],
+        "dat": ["своему", "своей", "своему", "своим"],
+        "akk": ["свой / своего", "свую", "своё", "свои / своих"],
+        "ins": ["своим", "своей", "своим", "своими"],
+        "pre": ["своём", "своей", "своём", "своих"]
+    };
+
+    // Ein Pool an ähnlichen Formen zur Auswahl
+    const optionsPool = [
+        "свой", "своя", "своё", "свои", "своего", "своей", "своему", "свою", 
+        "своим", "своём", "своих", "своими", "свой / своего", "свои / своих"
+    ].sort();
+
+    function renderTable() {
+        const tbody = document.getElementById('table-body');
+        cases.forEach(c => {
+            const tr = document.createElement('tr');
+            
+            // Case Label
+            const tdLabel = document.createElement('td');
+            tdLabel.className = 'case-label';
+            tdLabel.innerText = c.label;
+            tr.appendChild(tdLabel);
+
+            // 4 Gender/Number Columns
+            for (let i = 0; i < 4; i++) {
+                const td = document.createElement('td');
+                const select = document.createElement('select');
+                select.id = `cell-${c.id}-${i}`;
+                select.onchange = () => checkCell(c.id, i);
+                
+                select.innerHTML = `<option value="">--?--</option>` + 
+                    optionsPool.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+                
+                td.appendChild(select);
+                tr.appendChild(td);
+            }
+            tbody.appendChild(tr);
+        });
+    }
+
+    function checkCell(caseId, colIdx) {
+        const select = document.getElementById(`cell-${caseId}-${colIdx}`);
+        const val = select.value;
+        const correctVal = answers[caseId][colIdx];
+
+        if (val === "") {
+            select.className = "";
+        } else if (val === correctVal) {
+            select.className = "correct";
+        } else {
+            select.className = "incorrect";
+        }
+    }
+
+    window.resetTable = function() {
+        const selects = document.querySelectorAll('select');
+        selects.forEach(s => {
+            s.value = "";
+            s.className = "";
+        });
+    };
+
+    window.showAllSolutions = function() {
+        cases.forEach(c => {
+            for (let i = 0; i < 4; i++) {
+                const select = document.getElementById(`cell-${c.id}-${i}`);
+                select.value = answers[c.id][i];
+                select.className = "correct";
+            }
+        });
+    };
+
+    document.addEventListener('DOMContentLoaded', renderTable);
+</script>
+
+</body>
+</html>
