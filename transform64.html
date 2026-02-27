@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch-Trainer: Transformation zu свой</title>
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --error-color: #e74c3c;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            font-style: normal; /* Sicherstellen, dass nichts kursiv ist */
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            text-align: center;
+            font-style: normal;
+        }
+
+        .intro-box {
+            background: #eef2f7;
+            padding: 20px;
+            border-left: 5px solid var(--secondary-color);
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+
+        .task-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+
+        .task-header {
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .original-sentence {
+            color: #666;
+            margin-bottom: 10px;
+            display: block;
+            font-style: normal;
+        }
+
+        .sentence {
+            font-size: 1.2rem;
+            margin: 10px 0;
+            font-style: normal;
+        }
+
+        select {
+            padding: 5px;
+            font-size: 1rem;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        /* Feedback-Styles */
+        select.correct {
+            border-color: var(--success-color) !important;
+            background-color: #e8f5e9 !important;
+            color: var(--success-color) !important;
+        }
+
+        select.incorrect {
+            border-color: var(--error-color) !important;
+            background-color: #ffebee !important;
+            color: var(--error-color) !important;
+        }
+
+        .btn-group {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            transition: opacity 0.2s;
+            font-family: inherit;
+            font-style: normal;
+        }
+
+        .btn-reset { background-color: #95a5a6; }
+        .btn-sol { background-color: var(--primary-color); }
+
+        button:hover { opacity: 0.9; }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .sentence { font-size: 1rem; }
+            .btn-group { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russische Grammatik: Transformation</h1>
+    <h2>Personal-Possessiv zu свой</h2>
+
+    <div class="intro-box">
+        <p><strong>Erklärung:</strong> Im Russischen bevorzugt man das Wort <strong>свой</strong>, wenn sich der Besitz auf das Subjekt des Satzes bezieht. Es ersetzt Wörter wie мой, твой, его, её und so weiter.</p>
+        <p><strong>Aufgabe:</strong> Ersetze das eingeklammerte Pronomen durch die korrekte Form von <strong>свой</strong>. Achte auf den Fall (Kasus) und das Geschlecht des Substantivs.</p>
+    </div>
+
+    <div id="exercise-list"></div>
+</div>
+
+<script>
+    const exercises = [
+        { id: 1, orig: "Я люблю мою маму.", q: "Я люблю ... маму.", options: ["свой", "свою", "своё", "своей"], ans: "свою" },
+        { id: 2, orig: "Ты видишь твой дом.", q: "Ты видишь ... дом.", options: ["свой", "свою", "своё", "свои"], ans: "свой" },
+        { id: 3, orig: "Он читает его книгу.", q: "Он читает ... книгу.", options: ["свой", "своё", "свою", "своих"], ans: "свою" },
+        { id: 4, orig: "Она моет её машину.", q: "Она моет ... машину.", options: ["свою", "своё", "свои", "своей"], ans: "свою" },
+        { id: 5, orig: "Мы живём в нашем доме.", q: "Мы живём в ... доме.", options: ["свой", "своём", "своего", "своим"], ans: "своём" },
+        { id: 6, orig: "Вы звоните вашим друзьям.", q: "Вы звоните ... друзьям.", options: ["своим", "своих", "своими", "своём"], ans: "своим" },
+        { id: 7, orig: "Они гордятся их успехами.", q: "Они гордятся ... успехами.", options: ["свои", "своих", "своими", "своём"], ans: "своими" },
+        { id: 8, orig: "Я думаю о моём будущем.", q: "Я думаю о ... будущем.", options: ["свой", "своём", "своего", "своеmu"], ans: "своём" },
+        { id: 9, orig: "Ты ищешь твои ключи.", q: "Ты ищешь ... ключи.", options: ["свой", "свои", "свою", "своих"], ans: "свои" },
+        { id: 10, orig: "Он гуляет с его собакой.", q: "Он гуляет со ... собакой.", options: ["своей", "свою", "своим", "своё"], ans: "своей" },
+        { id: 11, orig: "Она рассказывает о её жизни.", q: "Она рассказывает о ... жизни.", options: ["свою", "своей", "своё", "свои"], ans: "своей" },
+        { id: 12, orig: "Мы ждём нашего учителя.", q: "Мы ждём ... учителя.", options: ["свой", "своего", "своему", "своим"], ans: "своего" },
+        { id: 13, orig: "Вы потеряли ваши деньги.", q: "Вы потеряли ... деньги.", options: ["свои", "своих", "своими", "своём"], ans: "свои" },
+        { id: 14, orig: "Они встретили их знакомых.", q: "Они встретили ... знакомых.", options: ["свои", "своих", "своим", "своими"], ans: "своих" },
+        { id: 15, orig: "Я пью мой чай.", q: "Я пью ... чай.", options: ["свой", "свою", "своё", "свои"], ans: "свой" },
+        { id: 16, orig: "Ты ешь твоё яблоко.", q: "Ты ешь ... яблоко.", options: ["свой", "свою", "своё", "свои"], ans: "своё" },
+        { id: 17, orig: "Студентка пишет в её тетради.", q: "Студентка пишет в ... тетради.", options: ["своей", "свою", "своим", "своих"], ans: "своей" },
+        { id: 18, orig: "Мальчик spielt mit seinem Freund.", q: "Мальчик играет со ... другом.", options: ["своим", "своему", "своём", "своего"], ans: "своим" },
+        { id: 19, orig: "Мы верим нашим чувствам.", q: "Мы верим ... чувствам.", options: ["своим", "своих", "своими", "своих"], ans: "своim" },
+        { id: 19, orig: "Мы верим нашим чувствам.", q: "Мы верим ... чувствам.", options: ["своим", "своих", "своими", "своих"], ans: "своим" },
+        { id: 20, orig: "Они забыли их вещи.", q: "Они забыли ... вещи.", options: ["свои", "своих", "своimi", "своём"], ans: "свои" }
+    ];
+
+    function init() {
+        const list = document.getElementById('exercise-list');
+        exercises.forEach((ex, index) => {
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            card.id = `card-${ex.id}`;
+
+            const qParts = ex.q.split('...');
+
+            card.innerHTML = `
+                <span class="task-header">Aufgabe ${index + 1}</span>
+                <span class="original-sentence">Original: „${ex.orig}“</span>
+                <p class="sentence">
+                    ${qParts[0]}
+                    <select id="select-${ex.id}" onchange="checkAnswer(${ex.id})">
+                        <option value="">-- wählen --</option>
+                        ${ex.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                    </select>
+                    ${qParts[1]}
+                </p>
+                <div class="btn-group">
+                    <button class="btn-reset" onclick="resetTask(${ex.id})">Zurücksetzen</button>
+                    <button class="btn-sol" onclick="showSolution(${ex.id})">Lösung anzeigen</button>
+                </div>
+            `;
+            list.appendChild(card);
+        });
+    }
+
+    window.checkAnswer = function(id) {
+        const ex = exercises.find(e => e.id === id);
+        const el = document.getElementById(`select-${id}`);
+        const val = el.value;
+
+        if (val === "") {
+            el.className = "";
+            return;
+        }
+
+        if (val === ex.ans) {
+            el.className = "correct";
+        } else {
+            el.className = "incorrect";
+        }
+    };
+
+    window.resetTask = function(id) {
+        const el = document.getElementById(`select-${id}`);
+        el.value = "";
+        el.className = "";
+    };
+
+    window.showSolution = function(id) {
+        const ex = exercises.find(e => e.id === id);
+        const el = document.getElementById(`select-${id}`);
+        el.value = ex.ans;
+        el.className = "correct";
+    };
+
+    document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>
