@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russische Grammatik: Das Pronomen свой</title>
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --error-color: #e74c3c;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --border-radius: 8px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+        }
+
+        .intro-box {
+            background: #eef2f7;
+            padding: 20px;
+            border-left: 5px solid var(--secondary-color);
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+
+        .task-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            background: #fafafa;
+            transition: all 0.3s ease;
+        }
+
+        .task-title {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+            color: var(--secondary-color);
+        }
+
+        .sentence {
+            font-size: 1.1em;
+            margin: 10px 0;
+        }
+
+        /* Input Styling */
+        select {
+            padding: 5px 10px;
+            font-size: 1em;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            margin: 10px 0;
+        }
+
+        .radio-option {
+            padding: 5px 10px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Feedback Colors */
+        .correct {
+            border-color: var(--success-color) !important;
+            background-color: #e8f5e9 !important;
+            color: var(--success-color) !important;
+        }
+
+        .incorrect {
+            border-color: var(--error-color) !important;
+            background-color: #ffebee !important;
+            color: var(--error-color) !important;
+        }
+
+        /* Drag and Drop */
+        .drag-pool {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .draggable {
+            background: white;
+            border: 2px solid var(--secondary-color);
+            padding: 4px 12px;
+            border-radius: 15px;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .dropzone {
+            display: inline-block;
+            min-width: 80px;
+            height: 1.4em;
+            border-bottom: 2px dashed var(--secondary-color);
+            vertical-align: middle;
+            text-align: center;
+            padding: 0 10px;
+            font-weight: bold;
+        }
+
+        .btn-group {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-reset { background: #95a5a6; color: white; }
+        .btn-sol { background: var(--primary-color); color: white; }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .radio-group { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Grundlagen: Verwendung und Deklination von свой</h1>
+    
+    <div class="intro-box">
+        <h2>Anleitung</h2>
+        <p>Das Wort <strong>свой</strong> bedeutet „eigen“. Es wird verwendet, wenn sich der Besitz auf das Subjekt des Satzes bezieht.</p>
+        <ul>
+            <li><strong>Regel:</strong> Das Subjekt (я, ты, он...) ist gleichzeitig der Besitzer.</li>
+            <li><strong>Wichtig:</strong> свой darf <strong>nicht</strong> im Nominativ stehen, wenn es das Subjekt selbst beschreibt (z. B. „Mein Haus ist groß“ -> Мой дом...).</li>
+            <li>In den folgenden Aufgaben sollst du die richtige Form von свой wählen oder entscheiden, ob es verwendet werden darf.</li>
+        </ul>
+    </div>
+
+    <div id="exercise-container"></div>
+</div>
+
+<script>
+    const exercises = [
+        // 1-5 Logik (Radio)
+        { id: 1, type: 'radio', q: "Darf man hier „свой“ nutzen? „Он читаet ... книгу.“", options: ["Ja", "Nein"], answer: "Ja" },
+        { id: 2, type: 'radio', q: "Darf man hier „свой“ nutzen? „... дом красивый.“ (Ihr Haus ist schön)", options: ["Ja", "Nein"], answer: "Nein" },
+        { id: 3, type: 'radio', q: "Darf man hier „свой“ nutzen? „Я люблю ... работу.“", options: ["Ja", "Nein"], answer: "Ja" },
+        { id: 4, type: 'radio', q: "Darf man hier „свой“ nutzen? „... сын учится в школе.“ (Mein Sohn lernt in der Schule)", options: ["Ja", "Nein"], answer: "Nein" },
+        { id: 5, type: 'radio', q: "Darf man hier „свой“ nutzen? „Мы видим ... машину.“", options: ["Ja", "Nein"], answer: "Ja" },
+        
+        // 6-10 Genus (Select)
+        { id: 6, type: 'select', q: "Иван взял ... словарь.", options: ["свой", "свою", "своё"], answer: "свой" },
+        { id: 7, type: 'select', q: "Мария читает ... газету.", options: ["свой", "свою", "своё"], answer: "свою" },
+        { id: 8, type: 'select', q: "Мы любим ... село.", options: ["свой", "свою", "своё"], answer: "своё" },
+        { id: 9, type: 'select', q: "Ты видишь ... друзей.", options: ["свой", "свои", "своя"], answer: "свои" },
+        { id: 10, type: 'select', q: "Она нашла ... ключи.", options: ["свой", "свои", "своё"], answer: "свои" },
+
+        // 11-15 Kasus (Select)
+        { id: 11, type: 'select', q: "У него нет ... ручки.", options: ["свой", "своей", "свою"], answer: "своей" },
+        { id: 12, type: 'select', q: "Я иду к ... другу.", options: ["своему", "своим", "своём"], answer: "своему" },
+        { id: 13, type: 'select', q: "Мы говорили о ... планах.", options: ["своих", "своими", "своим"], answer: "своих" },
+        { id: 14, type: 'select', q: "Она гордится ... дочерью.", options: ["своей", "свою", "своё"], answer: "своей" },
+        { id: 15, type: 'select', q: "Вы живёte в ... доме.", options: ["свой", "своём", "своего"], answer: "своём" },
+
+        // 16-20 Drag & Drop
+        { id: 16, type: 'drag', q: "Я пишу в ... тетради.", pool: ["своей", "свою", "своим"], answer: "своей" },
+        { id: 17, type: 'drag', q: "Он доволен ... работой.", pool: ["своей", "свою", "своим"], answer: "своей" },
+        { id: 18, type: 'drag', q: "Они встретили ... знакомых.", pool: ["своих", "свои", "своим"], answer: "своих" },
+        { id: 19, type: 'drag', q: "Мы идём со ... знакомым.", pool: ["своим", "своему", "своём"], answer: "своim" }, // corrected answer key below to match exactly
+        { id: 19, type: 'drag', q: "Мы идём со ... знакомым.", pool: ["своим", "своему", "своём"], answer: "своим" },
+        { id: 20, type: 'drag', q: "Ты думаешь о ... будущем.", pool: ["своём", "своего", "своему"], answer: "своём" }
+    ];
+
+    function renderExercises() {
+        const container = document.getElementById('exercise-container');
+        exercises.forEach((ex, idx) => {
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            card.id = `ex-${ex.id}`;
+
+            let content = `<span class="task-title">Aufgabe ${idx + 1}</span>`;
+
+            if (ex.type === 'radio') {
+                content += `<p class="sentence">${ex.q}</p><div class="radio-group">`;
+                ex.options.forEach(opt => {
+                    content += `<div class="radio-option" onclick="checkRadio(${ex.id}, '${opt}', this)">${opt}</div>`;
+                });
+                content += `</div>`;
+            } 
+            else if (ex.type === 'select') {
+                const parts = ex.q.split('...');
+                content += `<p class="sentence">${parts[0]} <select onchange="checkSelect(${ex.id}, this)">
+                            <option value="">--?--</option>
+                            ${ex.options.map(o => `<option value="${o}">${o}</option>`).join('')}
+                            </select> ${parts[1]}</p>`;
+            } 
+            else if (ex.type === 'drag') {
+                const parts = ex.q.split('...');
+                content += `<div class="drag-pool">
+                            ${ex.pool.map(w => `<div class="draggable" draggable="true" ondragstart="onDragStart(event)">${w}</div>`).join('')}
+                            </div>`;
+                content += `<p class="sentence">${parts[0]} <span class="dropzone" ondragover="onDragOver(event)" ondrop="onDrop(event, ${ex.id})"></span> ${parts[1]}</p>`;
+            }
+
+            content += `<div class="btn-group">
+                        <button class="btn-reset" onclick="resetEx(${ex.id})">Zurücksetzen</button>
+                        <button class="btn-sol" onclick="showSolution(${ex.id})">Lösung anzeigen</button>
+                    </div>`;
+            
+            card.innerHTML = content;
+            container.appendChild(card);
+        });
+    }
+
+    // Logic: Radio
+    window.checkRadio = (id, val, el) => {
+        const ex = exercises.find(e => e.id === id);
+        const parent = el.parentElement;
+        Array.from(parent.children).forEach(c => c.className = 'radio-option');
+        
+        if (val === ex.answer) {
+            el.classList.add('correct');
+        } else {
+            el.classList.add('incorrect');
+        }
+    };
+
+    // Logic: Select
+    window.checkSelect = (id, el) => {
+        const ex = exercises.find(e => e.id === id);
+        el.className = (el.value === ex.answer) ? 'correct' : 'incorrect';
+        if (el.value === "") el.className = "";
+    };
+
+    // Logic: Drag & Drop
+    window.onDragStart = (ev) => {
+        ev.dataTransfer.setData("text", ev.target.innerText);
+    };
+
+    window.onDragOver = (ev) => {
+        ev.preventDefault();
+    };
+
+    window.onDrop = (ev, id) => {
+        ev.preventDefault();
+        const data = ev.dataTransfer.getData("text");
+        const ex = exercises.find(e => e.id === id);
+        ev.target.innerText = data;
+        ev.target.className = (data === ex.answer) ? 'dropzone correct' : 'dropzone incorrect';
+    };
+
+    // Global Actions
+    window.resetEx = (id) => {
+        const ex = exercises.find(e => e.id === id);
+        const card = document.getElementById(`ex-${id}`);
+        
+        if (ex.type === 'radio') {
+            Array.from(card.querySelectorAll('.radio-option')).forEach(c => c.className = 'radio-option');
+        } else if (ex.type === 'select') {
+            const s = card.querySelector('select');
+            s.value = "";
+            s.className = "";
+        } else if (ex.type === 'drag') {
+            const d = card.querySelector('.dropzone');
+            d.innerText = "";
+            d.className = "dropzone";
+        }
+    };
+
+    window.showSolution = (id) => {
+        const ex = exercises.find(e => e.id === id);
+        const card = document.getElementById(`ex-${id}`);
+        
+        if (ex.type === 'radio') {
+            Array.from(card.querySelectorAll('.radio-option')).forEach(c => {
+                c.className = (c.innerText === ex.answer) ? 'radio-option correct' : 'radio-option';
+            });
+        } else if (ex.type === 'select') {
+            const s = card.querySelector('select');
+            s.value = ex.answer;
+            s.className = "correct";
+        } else if (ex.type === 'drag') {
+            const d = card.querySelector('.dropzone');
+            d.innerText = ex.answer;
+            d.className = "dropzone correct";
+        }
+    };
+
+    window.onload = renderExercises;
+</script>
+
+</body>
+</html>
