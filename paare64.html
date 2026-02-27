@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch-Trainer: Übersetzungs-Paare свой</title>
+    <!-- Polyfill für Touch-Geräte -->
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --error-color: #e74c3c;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+        }
+
+        /* Keine Kursivschrift */
+        * {
+            box-sizing: border-box;
+            font-style: normal !important;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+            text-align: center;
+        }
+
+        .intro-box {
+            background: #eef2f7;
+            padding: 20px;
+            border-left: 5px solid var(--secondary-color);
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+
+        .pair-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .task-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            background: #fafafa;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .german-phrase {
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 10px;
+            display: block;
+            min-height: 3em;
+        }
+
+        .russian-sentence {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .gap {
+            display: inline-block;
+            min-width: 80px;
+            border-bottom: 2px solid var(--secondary-color);
+            text-align: center;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .gap.correct {
+            color: var(--success-color);
+            border-bottom-color: var(--success-color);
+        }
+
+        .gap.incorrect {
+            color: var(--error-color);
+            border-bottom-color: var(--error-color);
+        }
+
+        .option-box {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .opt-btn {
+            flex: 1;
+            padding: 8px;
+            background: white;
+            border: 1px solid var(--secondary-color);
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .opt-btn:hover {
+            background: #ebf5fb;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 5px;
+        }
+
+        .control-btn {
+            flex: 1;
+            padding: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .btn-reset { background: #95a5a6; }
+        .btn-sol { background: var(--primary-color); }
+
+        @media (max-width: 768px) {
+            .pair-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russische Grammatik: Übersetzungs-Paare</h1>
+    <h2>Kontrast-Übung: Eigenbesitz vs. Fremdbesitz</h2>
+
+    <div class="intro-box">
+        <p><strong>Die Herausforderung:</strong> Im Deutschen bedeutet „sein“ oder „ihr“ oft zweierlei. Im Russischen nutzen wir <strong>свой</strong> nur für den eigenen Besitz des Subjekts.</p>
+        <p><strong>Aufgabe:</strong> Wähle für die jeweilige Situation das richtige russische Wort aus.</p>
+    </div>
+
+    <div id="exercise-grid"></div>
+</div>
+
+<script>
+    const tasks = [
+        // Paar 1
+        { id: 1, de: "Er liebt seine (eigene) Frau.", ru: "Он любит ... жену.", opts: ["свою", "его"], ans: "свою" },
+        { id: 2, de: "Er liebt seine (die eines anderen) Frau.", ru: "Он любит ... жену.", opts: ["свою", "его"], ans: "его" },
+        // Paar 2
+        { id: 3, de: "Sie wäscht ihr (eigenes) Auto.", ru: "Она моет ... машину.", opts: ["свою", "её"], ans: "свою" },
+        { id: 4, de: "Sie wäscht ihr (das der Freundin) Auto.", ru: "Она моет ... машину.", opts: ["свою", "её"], ans: "её" },
+        // Paar 3
+        { id: 5, de: "Er spielt mit seinem (eigenen) Hund.", ru: "Он играет со ... собакой.", opts: ["своей", "его"], ans: "своей" },
+        { id: 6, de: "Er spielt mit seinem (dem des Nachbarn) Hund.", ru: "Он играет со ... собакой.", opts: ["своей", "его"], ans: "его" },
+        // Paar 4
+        { id: 7, de: "Sie erzählt von ihrem (eigenen) Leben.", ru: "Она рассказывает о ... жизни.", opts: ["своей", "её"], ans: "своей" },
+        { id: 8, de: "Sie erzählt von ihrem (dem der Tante) Leben.", ru: "Она рассказывает о ... жизни.", opts: ["своей", "её"], ans: "её" },
+        // Paar 5
+        { id: 9, de: "Er geht in sein (eigenes) Haus.", ru: "Он идёт в ... дом.", opts: ["свой", "его"], ans: "свой" },
+        { id: 10, de: "Er geht in sein (das des Chefs) Haus.", ru: "Он идёт в ... дом.", opts: ["свой", "его"], ans: "его" },
+        // Paar 6
+        { id: 11, de: "Sie hilft ihrem (eigenen) Bruder.", ru: "Она помогает ... брату.", opts: ["своему", "её"], ans: "своему" },
+        { id: 12, de: "Sie hilft ihrem (dem der Freundin) Bruder.", ru: "Она помогает ... брату.", opts: ["своему", "её"], ans: "её" },
+        // Paar 7
+        { id: 13, de: "Sie suchen ihre (eigenen) Schlüssel.", ru: "Они ищут ... ключи.", opts: ["свои", "их"], ans: "свои" },
+        { id: 14, de: "Sie suchen ihre (die der Eltern) Schlüssel.", ru: "Они ищут ... ключи.", opts: ["свои", "их"], ans: "их" },
+        // Paar 8
+        { id: 15, de: "Er liest sein (eigenes) Buch.", ru: "Он читает ... книгу.", opts: ["свою", "его"], ans: "свою" },
+        { id: 16, de: "Er liest sein (das des Lehrers) Buch.", ru: "Он читает ... книгу.", opts: ["свою", "его"], ans: "его" },
+        // Paar 9
+        { id: 17, de: "Sie denkt an ihre (eigene) Zukunft.", ru: "Она думает о ... будущем.", opts: ["своём", "её"], ans: "своём" },
+        { id: 18, de: "Sie denkt an ihre (die der Kinder) Zukunft.", ru: "Она думает о ... будущем.", opts: ["своём", "их"], ans: "их" },
+        // Paar 10
+        { id: 19, de: "Er fährt mit seinem (eigenen) Fahrrad.", ru: "Он едет на ... велосипеде.", opts: ["своём", "его"], ans: "своём" },
+        { id: 20, de: "Er fährt mit seinem (dem des Bruders) Fahrrad.", ru: "Он едет na ... велосипеде.", opts: ["своём", "его"], ans: "его" }
+    ];
+
+    function render() {
+        const grid = document.getElementById('exercise-grid');
+        grid.innerHTML = '';
+        
+        // Wir rendern paarweise
+        for(let i=0; i < tasks.length; i+=2) {
+            const pairDiv = document.createElement('div');
+            pairDiv.className = 'pair-container';
+            
+            [tasks[i], tasks[i+1]].forEach(t => {
+                const card = document.createElement('div');
+                card.className = 'task-card';
+                card.id = `card-${t.id}`;
+                
+                const parts = t.ru.split('...');
+                
+                card.innerHTML = `
+                    <span class="german-phrase">„${t.de}“</span>
+                    <div class="russian-sentence">
+                        ${parts[0]} <span class="gap" id="gap-${t.id}">...</span> ${parts[1]}
+                    </div>
+                    <div class="option-box">
+                        ${t.opts.map(o => `<button class="opt-btn" onclick="check(${t.id}, '${o}')">${o}</button>`).join('')}
+                    </div>
+                    <div class="btn-group">
+                        <button class="control-btn btn-reset" onclick="reset(${t.id})">Reset</button>
+                        <button class="control-btn btn-sol" onclick="solve(${t.id})">Lösung</button>
+                    </div>
+                `;
+                pairDiv.appendChild(card);
+            });
+            grid.appendChild(pairDiv);
+        }
+    }
+
+    window.check = (id, choice) => {
+        const t = tasks.find(x => x.id === id);
+        const gap = document.getElementById(`gap-${id}`);
+        gap.innerText = choice;
+        
+        if(choice === t.ans) {
+            gap.className = "gap correct";
+        } else {
+            gap.className = "gap incorrect";
+        }
+    };
+
+    window.reset = (id) => {
+        const gap = document.getElementById(`gap-${id}`);
+        gap.innerText = "...";
+        gap.className = "gap";
+    };
+
+    window.solve = (id) => {
+        const t = tasks.find(x => x.id === id);
+        const gap = document.getElementById(`gap-${id}`);
+        gap.innerText = t.ans;
+        gap.className = "gap correct";
+    };
+
+    document.addEventListener('DOMContentLoaded', render);
+</script>
+
+</body>
+</html>
